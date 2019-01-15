@@ -1,2 +1,2 @@
 # YOLOFD
-YOLO Face Detection
+This is a Project using YOLO for Face Detection.
