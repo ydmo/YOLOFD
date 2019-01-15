@@ -24,7 +24,7 @@ def parseSet(imgsfolder = "", filelist = ""):
             if img_path is None or img_path is "":
                 break
             # 
-            img = cv2.imread(imgsfolder+"/"+img_path, 1)
+            # img = cv2.imread(imgsfolder+"/"+img_path, 1)
             # if img is None:
             #     assert(0)
             # 
@@ -53,14 +53,14 @@ def parseSet(imgsfolder = "", filelist = ""):
                     if len(targets_str[idx]) != 0:
                         gt_dict[gt_keys[idx]] = int(targets_str[idx])
                 gt_dicts.append(gt_dict)
-                img = cv2.rectangle(img, (gt_dict["x1"], gt_dict["y1"]), (gt_dict["x1"]+gt_dict["w"], gt_dict["y1"]+gt_dict["h"]), [0, 256, 0], 1)
+                # img = cv2.rectangle(img, (gt_dict["x1"], gt_dict["y1"]), (gt_dict["x1"]+gt_dict["w"], gt_dict["y1"]+gt_dict["h"]), [0, 256, 0], 1)
             wider_dict["objects"] = gt_dicts
             # 
-            cv2.imshow("img", img)
-            cv2.waitKey(0)
+            # cv2.imshow("img", img)
+            # cv2.waitKey(0)
             wider_dicts.append(wider_dict)
     # 
-    cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()
     # 
     return wider_dicts
 
