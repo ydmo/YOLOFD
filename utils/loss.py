@@ -2,15 +2,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class YoloLoss(nn.Module):
+class YoloLoss():
     
     def __init__(self):
-        super(YoloLoss, self).__init__()
         self.mse_loss = nn.MSELoss()  # Coordinate loss
         self.bce_loss = nn.BCELoss()  # Confidence loss
         self.ce_loss = nn.CrossEntropyLoss()  # Class loss
 
-    def forward(self, pred, target, object_mask, conf_mask):
+    def __call__(self, pred, target, object_mask, conf_mask):
         nB = pred.size(0)
         # 
         px = pred[..., 0 ]          # Box Center x

@@ -6,11 +6,11 @@ from modules.region import Region
 from utils.anchor import genAnchor
 from modules.initializer import module_weight_init
 
-# <Module TinyYolo416/>
-class TinyYolo416(nn.Module):
+# <Module FDNet/>
+class FDNet(nn.Module):
     """Main CNN Network as a module that named Yolo"""
-    def __init__(self):
-        super(TinyYolo416, self).__init__()
+    def __init__(self, anchors, num_classes):
+        super(FDNet, self).__init__()
         # 
         self.module_dict = nn.ModuleDict()
         # 
@@ -82,17 +82,7 @@ class TinyYolo416(nn.Module):
         # 
         self.module_dict['conv_15'] = nn.Conv2d(in_channels=128, out_channels=7*9, kernel_size=3, stride=1, padding=1, dilation=1, groups=1, bias=True)
         # 
-        area_max = 13 * 13
-        self.module_dict['region_16'] = Region(
-            anchors=genAnchor(
-                areas=(
-                    area_max, 
-                    area_max / 4.0, 
-                    area_max / 16.0
-                    )
-                ), 
-                num_classes=2
-            )
+        self.module_dict['region_16'] = Region(anchors=anchors, num_classes=num_classes)
         # 
         pass
 
@@ -106,10 +96,10 @@ class TinyYolo416(nn.Module):
         x = self.module_dict["conv_15"](x)
         x = self.module_dict["region_16"](x)
         return x
-# </Module TinyYolo416>
+# </Module FDNet>
 
 if __name__ == '__main__':
-    yolo = TinyYolo416()
+    yolo = FDNet()
     module_weight_init(yolo)
     yolo.eval()
     inp = torch.rand(1, 3, 416, 416)
