@@ -11,7 +11,185 @@ import cv2
 import pickle
 import random
 import math
+import json
+import scipy.io
+import os
 
+
+# <WiderFaceParser/>
+class WiderFaceParser(object):
+    """Some Information about WiderFaceParser"""
+    
+    # <__init__/>
+    def __init__(
+        self, 
+        path_to_train_images = './WIDER_train/images', 
+        wider_face_train_bbx_gt_mat = './wider_face_train.mat', 
+        path_to_val_images = './WIDER_val/images',
+        wider_face_val_bbx_gt_mat = './wider_face_val.mat',
+        path_to_test_images = './WIDER_test/images',
+        wider_face_test_filelist_mat = './wider_face_test.mat'
+        ):
+        super(WiderFaceParser, self).__init__()
+        
+        self.trainset = []
+        self.valset = []
+        self.testset = []
+        
+        # load trian dataset
+        try:
+            fmat = scipy.io.loadmat(wider_face_train_bbx_gt_mat)
+            event_list = fmat.get('event_list')
+            file_list = fmat.get('file_list')            
+            face_bbx_list = fmat.get('face_bbx_list')
+            blur_label_list = fmat.get('blur_label_list')
+            expression_label_list = fmat.get('expression_label_list')
+            illumination_label_list = fmat.get('illumination_label_list')
+            invalid_label_list = fmat.get('invalid_label_list')
+            occlusion_label_list = fmat.get('occlusion_label_list')
+            pose_label_list = fmat.get('pose_label_list')
+            for event_idx, event in enumerate(event_list):
+                event_name = event[0][0]
+                for im_idx, im in enumerate(file_list[event_idx][0]):
+                    im_name = im[0][0]
+                    face_bbx = face_bbx_list[event_idx][0][im_idx][0]
+                    face_bbx_blur = blur_label_list[event_idx][0][im_idx][0]
+                    face_bbx_expression = expression_label_list[event_idx][0][im_idx][0]
+                    face_bbx_illumination = illumination_label_list[event_idx][0][im_idx][0]
+                    face_bbx_invalid = invalid_label_list[event_idx][0][im_idx][0]
+                    face_bbx_occlusion = occlusion_label_list[event_idx][0][im_idx][0]
+                    face_bbx_pose = pose_label_list[event_idx][0][im_idx][0]
+                    bboxes = []
+                    image_info_dict = {}
+                    image_info_dict['name'] = im_name
+                    image_info_dict['path'] = os.path.join(path_to_train_images, event_name, im_name + '.jpg')
+                    image_info_dict['event'] = event_name
+                    image_info_dict['bboxes'] = []
+                    for i in range(face_bbx.shape[0]):
+                        w = float(face_bbx[i][2])
+                        h = float(face_bbx[i][3])
+                        cx = float(face_bbx[i][0]) + w / 2
+                        cy = float(face_bbx[i][1]) + h / 2
+                        image_info_dict['bboxes'].append( 
+                            { 
+                                "xywh": (cx, cy, w, h),
+                                'blur': int(face_bbx_blur[i][0]),
+                                'expression': int(face_bbx_expression[i][0]),
+                                'illumination': int(face_bbx_illumination[i][0]),
+                                'invalid': int(face_bbx_invalid[i][0]),
+                                'occlusion': int(face_bbx_occlusion[i][0]),
+                                'pose': int(face_bbx_pose[i][0]),
+                            } 
+                            )
+                    self.trainset.append(image_info_dict)
+        except:
+            print('Error in parsing wider_face_train_bbx_gt mat')
+        
+        # load val dataset
+        try:
+            fmat = scipy.io.loadmat(wider_face_val_bbx_gt_mat)
+            event_list = fmat.get('event_list')
+            file_list = fmat.get('file_list')            
+            face_bbx_list = fmat.get('face_bbx_list')
+            blur_label_list = fmat.get('blur_label_list')
+            expression_label_list = fmat.get('expression_label_list')
+            illumination_label_list = fmat.get('illumination_label_list')
+            invalid_label_list = fmat.get('invalid_label_list')
+            occlusion_label_list = fmat.get('occlusion_label_list')
+            pose_label_list = fmat.get('pose_label_list')
+            for event_idx, event in enumerate(event_list):
+                event_name = event[0][0]
+                for im_idx, im in enumerate(file_list[event_idx][0]):
+                    im_name = im[0][0]
+                    face_bbx = face_bbx_list[event_idx][0][im_idx][0]
+                    face_bbx_blur = blur_label_list[event_idx][0][im_idx][0]
+                    face_bbx_expression = expression_label_list[event_idx][0][im_idx][0]
+                    face_bbx_illumination = illumination_label_list[event_idx][0][im_idx][0]
+                    face_bbx_invalid = invalid_label_list[event_idx][0][im_idx][0]
+                    face_bbx_occlusion = occlusion_label_list[event_idx][0][im_idx][0]
+                    face_bbx_pose = pose_label_list[event_idx][0][im_idx][0]
+                    bboxes = []
+                    image_info_dict = {}
+                    image_info_dict['name'] = im_name
+                    image_info_dict['path'] = os.path.join(path_to_val_images, event_name, im_name + '.jpg')
+                    image_info_dict['event'] = event_name
+                    image_info_dict['bboxes'] = []
+                    for i in range(face_bbx.shape[0]):
+                        w = float(face_bbx[i][2])
+                        h = float(face_bbx[i][3])
+                        cx = float(face_bbx[i][0]) + w / 2
+                        cy = float(face_bbx[i][1]) + h / 2
+                        image_info_dict['bboxes'].append( 
+                            { 
+                                "xywh": (cx, cy, w, h),
+                                'blur': int(face_bbx_blur[i][0]),
+                                'expression': int(face_bbx_expression[i][0]),
+                                'illumination': int(face_bbx_illumination[i][0]),
+                                'invalid': int(face_bbx_invalid[i][0]),
+                                'occlusion': int(face_bbx_occlusion[i][0]),
+                                'pose': int(face_bbx_pose[i][0]),
+                            } 
+                            )
+                    self.trainset.append(image_info_dict)
+        except:
+            print('Error in parsing wider_face_val_bbx_gt mat')
+        
+        # load test list
+        try:
+            fmat = scipy.io.loadmat(wider_face_test_filelist_mat)
+            event_list = fmat.get('event_list')
+            file_list = fmat.get('file_list')
+            for event_idx, event in enumerate(event_list):
+                event_name = event[0][0]
+                for im_idx, im in enumerate(file_list[event_idx][0]):            
+                    im_name = im[0][0]
+                    image_info_dict = {}
+                    image_info_dict['name'] = im_name
+                    image_info_dict['path'] = os.path.join(path_to_val_images, event_name, im_name + '.jpg')
+                    image_info_dict['event'] = event_name
+                    self.testset.append(image_info_dict)
+        except:
+            print('Error in parsing wider_face_test_filelist mat')
+        
+        pass
+    # </__init__>
+
+    # <save_to_trainset_json/>
+    def save_to_trainset_json(self, json_file = './wider_face_trainset.json'):
+        try:
+            with open(json_file, 'w') as f:
+                json.dump(self.trainset, f)
+        except:
+            print("Error in save_to_trainset_json")
+            return False
+        return True
+    # </save_to_trainset_json>
+    
+    # <save_to_valset_json/>
+    def save_to_valset_json(self, json_file = './wider_face_valset.json'):
+        try:
+            with open(json_file, 'w') as f:
+                json.dump(self.valset, f)
+        except:
+            print("Error in save_to_trainset_json")
+            return False
+        return True
+    # </save_to_valset_json>
+    
+    # <save_to_testset_json/>
+    def save_to_testset_json(self, json_file = './wider_face_valset.json'):
+        try:
+            with open(json_file, 'w') as f:
+                json.dump(self.testset, f)
+        except:
+            print("Error in save_to_testset_json")
+            return False
+        return True
+    # </save_to_testset_json>
+
+# </WiderFaceParser>
+
+# <WiderFaceDataset/>
 class WiderFaceDataset(Dataset):
     def __init__(self, pickle_path, img_size = 480, grid_size = 15, max_boxes = 128):
         pickle_load = None
@@ -70,30 +248,16 @@ class WiderFaceDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
-
-
+# </WiderFaceDataset>
 
 if __name__ == '__main__':
-    trainset = WiderFaceDataset(pickle_path="/home/gtx1060/Documents/DataSets/wider_face/wider_face_split/wider_face_train_bbx_gt.pkl")
-    valset = WiderFaceDataset(pickle_path="/home/gtx1060/Documents/DataSets/wider_face/wider_face_split/wider_face_val_bbx_gt.pkl")
-    while True:
-        # print(len(trainset))
-        img, label = trainset[random.randint(0, len(trainset) - 1)]
-        # 
-        print(img)
-        print(img.shape)
-        if label is not None:
-            print(label)
-            print(label.shape)
-        
-        # 
-        # print(len(valset))
-        img, label = valset[random.randint(0, len(valset) - 1)]
-        # 
-        print(img)
-        print(img.shape)
-        if label is not None:
-            print(label)
-            print(label.shape)
-    # 
-    assert(0)
+    path_to_train_images = '/home/yuda/projects/YOLOFD/data/wider_face/WIDER_train/images'
+    path_to_val_images = '/home/yuda/projects/YOLOFD/data/wider_face/WIDER_val/images'
+    path_to_test_images = '/home/yuda/projects/YOLOFD/data/wider_face/WIDER_test/images'
+    wider_face_train_bbx_gt_mat = '/home/yuda/projects/YOLOFD/data/wider_face/wider_face_split/wider_face_train.mat'
+    wider_face_val_bbx_gt_mat = '/home/yuda/projects/YOLOFD/data/wider_face/wider_face_split/wider_face_val.mat'
+    wider_face_test_filelist_mat = '/home/yuda/projects/YOLOFD/data/wider_face/wider_face_split/wider_face_test.mat'
+    parser = WiderFaceParser(path_to_train_images, wider_face_train_bbx_gt_mat, path_to_val_images, wider_face_val_bbx_gt_mat, path_to_test_images, wider_face_test_filelist_mat)
+    parser.save_to_trainset_json('/home/yuda/projects/YOLOFD/data/wider_face/WIDER_train/wider_face_train.json')
+    parser.save_to_valset_json('/home/yuda/projects/YOLOFD/data/wider_face/WIDER_val/wider_face_val.json')
+    parser.save_to_testset_json('/home/yuda/projects/YOLOFD/data/wider_face/WIDER_test/wider_face_test.json')
